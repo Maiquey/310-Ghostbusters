@@ -75,7 +75,9 @@ class DiscreteDistribution(dict):
         {}
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        z = sum(self.values())
+        for key in self:
+            self[key] /= z
 
     def sample(self):
         """
@@ -99,6 +101,15 @@ class DiscreteDistribution(dict):
         0.0
         """
         "*** YOUR CODE HERE ***"
+        self.normalize()
+        sample = random.random()
+        oldProb = 0
+        newProb = 0
+        for key in self:
+            newProb = oldProb + self[key]
+            if sample >= oldProb and sample < newProb:
+                return key
+            oldProb = newProb
         raiseNotDefined()
 
 
