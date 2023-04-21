@@ -375,8 +375,6 @@ class ParticleFilter(InferenceModule):
         pacmanPosition = gameState.getPacmanPosition()
         jailPosition = self.getJailPosition()
 
-        oldDistribution = self.getBeliefDistribution()
-
         weightDistribution = DiscreteDistribution()
         for particle in self.particles:
             if particle not in weightDistribution:
@@ -386,7 +384,6 @@ class ParticleFilter(InferenceModule):
 
         if weightDistribution.total() == 0:
             self.initializeUniformly(gameState)
-            oldDistribution = self.getBeliefDistribution()
         else:
             newParticles = []
             for i in range(len(self.particles)):
@@ -451,7 +448,6 @@ class JointParticleFilter(ParticleFilter):
         "*** YOUR CODE HERE ***"
         ghostPosLists = []
         
-        print(self.numGhosts)
         for i in range(self.numGhosts):
             ghostPosLists.append(self.legalPositions)
         
@@ -494,7 +490,28 @@ class JointParticleFilter(ParticleFilter):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        pacmanPosition = gameState.getPacmanPosition()
+
+        weightDistribution = DiscreteDistribution()
+        for particle in self.particles:
+            if particle not in weightDistribution:
+                weightDistribution[particle] = 0
+            product = 1
+            for i in range(self.numGhosts):
+                product *= self.getObservationProb(observation[i], pacmanPosition, particle[i], self.getJailPosition(i))
+            weightDistribution[particle] += product
+        weightDistribution.normalize()
+
+        if weightDistribution.total() == 0:
+            self.initializeUniformly(gameState)
+        else:
+            newParticles = []
+            for i in range(len(self.particles)):
+                sample = weightDistribution.sample()
+                newParticles.append(sample)
+            self.particles = newParticles
+        
+
 
     def elapseTime(self, gameState):
         """
