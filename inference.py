@@ -419,10 +419,7 @@ class ParticleFilter(InferenceModule):
         "*** YOUR CODE HERE ***"
         dist = DiscreteDistribution()
         for particle in self.particles:
-            if particle in dist:
-                dist[particle] += 1
-            else:
-                dist[particle] = 1
+            dist[particle] += 1
         dist.normalize()
         return dist
 
@@ -452,7 +449,19 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        ghostPosLists = []
+        
+        print(self.numGhosts)
+        for i in range(self.numGhosts):
+            ghostPosLists.append(self.legalPositions)
+        
+        cartesianProduct = itertools.product(*ghostPosLists)
+        cartesianProduct = list(cartesianProduct)
+        random.shuffle(cartesianProduct)
+
+        for i in range(self.numParticles):
+            listsIndex = i % len(cartesianProduct)
+            self.particles.append(cartesianProduct[listsIndex])
 
     def addGhostAgent(self, agent):
         """
